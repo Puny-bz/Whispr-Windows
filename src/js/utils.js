@@ -1,17 +1,15 @@
 // Whispr Utility Functions
 
 const Utils = {
-  /**
-   * Count words in text
-   */
   wordCount(text) {
     if (!text || !text.trim()) return 0;
     return text.trim().split(/\s+/).length;
   },
 
-  /**
-   * Estimated read time at 150 WPM
-   */
+  charCount(text) {
+    return text ? text.length : 0;
+  },
+
   readTime(text) {
     const words = this.wordCount(text);
     const minutes = words / 150;
@@ -19,32 +17,23 @@ const Utils = {
     return `~${Math.round(minutes)} min`;
   },
 
-  /**
-   * Format seconds as M:SS
-   */
   formatTime(seconds) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   },
 
-  /**
-   * Simple markdown to HTML (bold, italic, headers)
-   */
-  markdownToHtml(text) {
-    if (!text) return '';
-    return text
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>');
+  formatDate(isoString) {
+    const d = new Date(isoString);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+    return d.toLocaleDateString();
   },
 
-  /**
-   * Split text into words preserving whitespace info
-   */
   tokenize(text) {
     if (!text) return [];
     const words = [];
@@ -60,17 +49,11 @@ const Utils = {
     return words;
   },
 
-  /**
-   * Split text into sentences (for jump navigation)
-   */
   splitSentences(text) {
     if (!text) return [];
     return text.split(/(?<=[.!?])\s+/).filter(s => s.trim());
   },
 
-  /**
-   * Debounce function calls
-   */
   debounce(fn, ms) {
     let timer;
     return (...args) => {
@@ -79,9 +62,6 @@ const Utils = {
     };
   },
 
-  /**
-   * Map font family name to CSS
-   */
   fontFamilyCSS(name) {
     switch (name) {
       case 'Serif': return 'var(--font-serif)';
@@ -91,14 +71,45 @@ const Utils = {
     }
   },
 
-  /**
-   * Invoke a Tauri command
-   */
   async invoke(cmd, args = {}) {
     if (window.__TAURI__) {
       return window.__TAURI__.core.invoke(cmd, args);
     }
     console.warn(`Tauri not available, cannot invoke: ${cmd}`);
     return null;
+  },
+
+  async listen(event, handler) {
+    if (window.__TAURI__) {
+      return window.__TAURI__.event.listen(event, handler);
+    }
+    return null;
+  },
+
+  async emit(event, payload) {
+    if (window.__TAURI__) {
+      return window.__TAURI__.event.emit(event, payload);
+    }
+  },
+
+  async emitTo(target, event, payload) {
+    if (window.__TAURI__) {
+      return window.__TAURI__.event.emitTo(target, event, payload);
+    }
+  },
+
+  escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  },
+
+  stripMarkdown(text) {
+    if (!text) return '';
+    return text
+      .replace(/^#{1,3}\s+/gm, '')
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/~~(.+?)~~/g, '$1');
   },
 };

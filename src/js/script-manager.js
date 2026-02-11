@@ -28,17 +28,136 @@ const ScriptManager = {
   },
 
   /**
-   * Create from template
+   * Create from template — matches Swift's ScriptTemplate enum exactly
    */
   async createFromTemplate(name) {
     const templates = {
-      'Keynote': 'Welcome everyone.\n\nToday I want to talk about...\n\nFirst, let me start with...\n\nSecond...\n\nIn conclusion...\n\nThank you.',
-      'YouTube Video': 'Hey everyone, welcome back to the channel!\n\nIn today\'s video, we\'re going to...\n\nBefore we get started, make sure to like and subscribe.\n\nLet\'s dive in.\n\n...\n\nThat\'s all for today. See you in the next one!',
-      'News Broadcast': 'Good evening. I\'m [Name] and this is [Show].\n\nTonight\'s top story...\n\nIn other news...\n\nWeather update...\n\nThat\'s all for tonight. Good night.',
-      'Podcast': 'Welcome to [Podcast Name], episode [#].\n\nI\'m your host [Name] and today we\'re discussing...\n\nSegment 1...\n\nSegment 2...\n\nBefore we wrap up...\n\nThanks for listening. Until next time!',
+      'YouTube Intro': `# YouTube Intro
+
+Hey everyone, welcome back to the channel!
+
+In today's video, we're going to be talking about **something really exciting**.
+
+Before we get started, make sure to *like* and *subscribe* — it really helps out the channel.
+
+Let's dive right in.
+
+...
+
+And that's it for today! If you enjoyed this video, drop a comment below and let me know what you want to see next.
+
+See you in the next one!`,
+
+      'Product Demo': `# Product Demo
+
+Welcome everyone, thank you for joining us today.
+
+I'm excited to show you **our latest product** and how it can help you.
+
+## Key Features
+
+First, let me walk you through the *main features*.
+
+Feature one...
+
+Feature two...
+
+Feature three...
+
+## How It Works
+
+Let me show you a quick demo.
+
+...
+
+## Wrap Up
+
+That's everything for today. If you have any questions, feel free to reach out.
+
+Thank you!`,
+
+      'Presentation Opener': `# Presentation
+
+Good morning everyone. Thank you for being here.
+
+Today I want to talk about **an important topic** that affects all of us.
+
+## The Problem
+
+Let me start by describing the challenge we're facing.
+
+...
+
+## The Solution
+
+Here's what we propose.
+
+...
+
+## Next Steps
+
+So what can we do about it?
+
+...
+
+## Conclusion
+
+In summary, the key takeaways are:
+
+One...
+
+Two...
+
+Three...
+
+Thank you for your attention. I'm happy to take questions.`,
+
+      'Pitch Deck': `# Pitch Deck
+
+Good afternoon. My name is **[Name]** and I'm the founder of **[Company]**.
+
+## The Problem
+
+Every day, millions of people struggle with...
+
+## Our Solution
+
+We've built a platform that...
+
+## Market Size
+
+The total addressable market is...
+
+## Traction
+
+Since our launch, we've achieved...
+
+## Business Model
+
+We generate revenue through...
+
+## The Team
+
+Our team brings together experience from...
+
+## The Ask
+
+We're raising **$[Amount]** to...
+
+Thank you. I'm happy to answer any questions.`,
+
+      'Blank': '',
     };
 
     const content = templates[name] || '';
-    return this.create(name, content);
+    const title = name === 'Blank' ? 'Untitled Script' : name;
+    return this.create(title, content);
+  },
+
+  /**
+   * Get template names (for UI menu)
+   */
+  getTemplateNames() {
+    return ['YouTube Intro', 'Product Demo', 'Presentation Opener', 'Pitch Deck', 'Blank'];
   },
 };

@@ -151,7 +151,10 @@ const SettingsManager = {
 
   async _update(key, value) {
     const updated = await Utils.invoke('update_setting', { key, value: value.toString() });
-    if (updated) this.settings = updated;
+    if (updated) {
+      this.settings = updated;
+      Utils.emit('settings-changed', updated);
+    }
   },
 };
 

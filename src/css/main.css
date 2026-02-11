@@ -72,6 +72,31 @@ html, body {
   color: var(--text-primary);
 }
 
+/* ── Search ── */
+.sidebar-search {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.search-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 12px;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
 .script-list {
   flex: 1;
   overflow-y: auto;
@@ -111,6 +136,20 @@ html, body {
 
 .script-item.active .script-item-meta {
   color: rgba(255, 255, 255, 0.7);
+}
+
+.script-item-preview {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.7;
+}
+
+.script-item.active .script-item-preview {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ── Editor Panel ── */

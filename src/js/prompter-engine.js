@@ -1,24 +1,36 @@
-// Prompter Engine — Core scroll & karaoke engine
-// Port of PrompterViewModel.swift
+// Prompter Engine — Full port of PrompterViewModel.swift (405 lines)
+// Timer-based scrolling with word/line tracking and pixel offset calculation
 
 class PrompterEngine {
   constructor(options = {}) {
     // State
     this.words = [];
+    this.lines = [];
     this.currentWordIndex = 0;
+    this.currentLineIndex = 0;
     this.scrollOffset = 0;
     this.isRunning = false;
     this.isPaused = false;
     this.isReversed = false;
     this.elapsedSeconds = 0;
-    this.startTime = null;
-    this.pauseStart = null;
+
+    // Time tracking (matches Swift's scrollStartDate pattern)
+    this.scrollStartDate = null;
+    this.scrollStartWordIndex = 0;
+    this.scrollStartPixelOffset = 0;
+    this.pauseStartTime = null;
     this.totalPauseTime = 0;
 
     // Settings
     this.scrollSpeed = options.scrollSpeed || 50;
     this.fontSize = options.fontSize || 32;
     this.endAction = options.endAction || 'stop';
+
+    // Derived (matches Swift calculation)
+    this.wordsPerSecond = 0;
+    this.pixelsPerSecond = 0;
+    this.lineHeight = 0;
+    this.avgWordsPerLine = 1;
 
     // Callbacks
     this.onWordChange = options.onWordChange || null;
@@ -28,101 +40,123 @@ class PrompterEngine {
     this.onPauseChange = options.onPauseChange || null;
     this.onSpeedChange = options.onSpeedChange || null;
 
-    // Internal
-    this._animFrame = null;
-    this._lastTimestamp = null;
+    // Internal (30fps timer matching Swift's 1/30 interval)
+    this._timer = null;
     this._timerInterval = null;
   }
 
-  /**
-   * Load script text and prepare words
-   */
   loadScript(text) {
     this.words = Utils.tokenize(text);
+    // Split into lines for accurate scroll calculation
+    this.lines = text.split('\n').filter(l => l.trim());
     this.currentWordIndex = 0;
+    this.currentLineIndex = 0;
     this.scrollOffset = 0;
+    this._recalculateSpeed();
   }
 
   /**
-   * Begin scrolling (called after countdown)
+   * Recalculate speed — exact port of Swift's recalculateSpeed()
+   * displaySpeed = scrollSpeed * 3.0 (WPM)
+   * wordsPerSecond = displaySpeed / 60.0
+   * lineHeight = fontSize * 1.2 + 16.0
+   * avgWordsPerLine = max(1, totalWords / totalLines)
+   * linesPerSecond = wordsPerSecond / avgWordsPerLine
+   * pixelsPerSecond = linesPerSecond * lineHeight
    */
+  _recalculateSpeed() {
+    const displaySpeed = this.scrollSpeed * 3.0; // WPM
+    this.wordsPerSecond = displaySpeed / 60.0;
+    this.lineHeight = this.fontSize * 1.2 + 16.0;
+    this.avgWordsPerLine = Math.max(
+      1.0,
+      this.words.length / Math.max(1.0, this.lines.length)
+    );
+    const linesPerSecond = this.wordsPerSecond / this.avgWordsPerLine;
+    this.pixelsPerSecond = linesPerSecond * this.lineHeight;
+  }
+
   start() {
     if (this.words.length === 0) return;
     this.isRunning = true;
     this.isPaused = false;
-    this.startTime = Date.now();
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = 0;
+    this.scrollStartPixelOffset = 0;
     this.totalPauseTime = 0;
-    this._lastTimestamp = performance.now();
 
-    // Start animation loop
-    this._animFrame = requestAnimationFrame((t) => this._tick(t));
+    // 30fps timer matching Swift's Timer.scheduledTimer(1.0/30.0)
+    this._timer = setInterval(() => this._tick(), 1000 / 30);
 
-    // Start timer
+    // Elapsed time timer (1s interval)
     this._timerInterval = setInterval(() => {
       if (!this.isPaused) {
-        this.elapsedSeconds = (Date.now() - this.startTime - this.totalPauseTime) / 1000;
+        this.elapsedSeconds =
+          (Date.now() - this.scrollStartDate - this.totalPauseTime) / 1000;
         if (this.onTimerUpdate) this.onTimerUpdate(this.elapsedSeconds);
       }
     }, 1000);
   }
 
   /**
-   * Main animation loop — 60fps scroll
+   * Main tick — time-based calculation matching Swift's scrollTick()
+   * elapsed = now - scrollStartDate - totalPauseTime
+   * wordIndex = scrollStartWordIndex + elapsed * wordsPerSecond
+   * pixelOffset = scrollStartPixelOffset + elapsed * pixelsPerSecond
    */
-  _tick(timestamp) {
-    if (!this.isRunning) return;
+  _tick() {
+    if (!this.isRunning || this.isPaused) return;
 
-    if (!this.isPaused) {
-      const delta = (timestamp - this._lastTimestamp) / 1000; // seconds
+    const now = Date.now();
+    const elapsed = (now - this.scrollStartDate - this.totalPauseTime) / 1000;
 
-      // Calculate pixels per second from scroll speed
-      const displaySpeed = this.scrollSpeed * 3.0; // WPM
-      const wordsPerSecond = displaySpeed / 60.0;
-      const lineHeight = this.fontSize * 1.2 + 16;
-      const totalWords = this.words.length;
-      const avgWordsPerLine = Math.max(totalWords > 0 ? totalWords / Math.max(totalWords / 8, 1) : 8, 1);
-      const linesPerSecond = wordsPerSecond / avgWordsPerLine;
-      const pixelsPerSecond = linesPerSecond * lineHeight;
+    const direction = this.isReversed ? -1 : 1;
 
-      const direction = this.isReversed ? -1 : 1;
-      this.scrollOffset += pixelsPerSecond * delta * direction;
+    // Calculate word index from time
+    const wordDelta = elapsed * this.wordsPerSecond * direction;
+    const newWordIndex = Math.floor(
+      Math.max(0, Math.min(this.words.length - 1, this.scrollStartWordIndex + wordDelta))
+    );
 
-      // Advance word index based on scroll position
-      if (!this.isReversed) {
-        const targetIndex = Math.floor(this.scrollOffset / (lineHeight / avgWordsPerLine));
-        if (targetIndex > this.currentWordIndex && targetIndex < this.words.length) {
-          this.currentWordIndex = targetIndex;
-          if (this.onWordChange) this.onWordChange(this.currentWordIndex);
-        }
+    // Calculate pixel offset from time
+    const pixelDelta = elapsed * this.pixelsPerSecond * direction;
+    this.scrollOffset = this.scrollStartPixelOffset + pixelDelta;
 
-        // Check end of script
-        if (this.currentWordIndex >= this.words.length - 1) {
-          this._handleEnd();
-          return;
-        }
-      } else {
-        const targetIndex = Math.floor(this.scrollOffset / (lineHeight / avgWordsPerLine));
-        if (targetIndex < this.currentWordIndex && targetIndex >= 0) {
-          this.currentWordIndex = targetIndex;
-          if (this.onWordChange) this.onWordChange(this.currentWordIndex);
+    // Update word index
+    if (newWordIndex !== this.currentWordIndex) {
+      this.currentWordIndex = newWordIndex;
+
+      // Calculate line index
+      let wordsSoFar = 0;
+      for (let i = 0; i < this.lines.length; i++) {
+        wordsSoFar += this.lines[i].split(/\s+/).filter(Boolean).length;
+        if (wordsSoFar > this.currentWordIndex) {
+          this.currentLineIndex = i;
+          break;
         }
       }
 
-      if (this.onScroll) this.onScroll(this.scrollOffset);
+      if (this.onWordChange) this.onWordChange(this.currentWordIndex);
     }
 
-    this._lastTimestamp = timestamp;
-    this._animFrame = requestAnimationFrame((t) => this._tick(t));
+    if (this.onScroll) this.onScroll(this.scrollOffset);
+
+    // Check end of script
+    if (!this.isReversed && this.currentWordIndex >= this.words.length - 1) {
+      this._handleEnd();
+    }
   }
 
-  /**
-   * Handle end of script
-   */
   _handleEnd() {
     switch (this.endAction) {
       case 'loop':
         this.currentWordIndex = 0;
+        this.currentLineIndex = 0;
         this.scrollOffset = 0;
+        this.scrollStartDate = Date.now();
+        this.scrollStartWordIndex = 0;
+        this.scrollStartPixelOffset = 0;
+        this.totalPauseTime = 0;
         if (this.onWordChange) this.onWordChange(0);
         if (this.onScroll) this.onScroll(0);
         break;
@@ -130,102 +164,128 @@ class PrompterEngine {
         this.stop();
         if (this.onEnd) this.onEnd('close');
         break;
-      default: // 'stop'
+      default:
         this.pause();
         if (this.onEnd) this.onEnd('stop');
         break;
     }
   }
 
-  /**
-   * Pause/resume toggle
-   */
   togglePause() {
-    if (this.isPaused) {
-      this.resume();
-    } else {
-      this.pause();
-    }
+    if (this.isPaused) this.resume();
+    else this.pause();
   }
 
   pause() {
     if (!this.isRunning || this.isPaused) return;
     this.isPaused = true;
-    this.pauseStart = Date.now();
+    this.pauseStartTime = Date.now();
     if (this.onPauseChange) this.onPauseChange(true);
   }
 
+  /**
+   * Resume — resets scroll anchor (matches Swift's lines 300-303)
+   */
   resume() {
     if (!this.isPaused) return;
     this.isPaused = false;
-    if (this.pauseStart) {
-      this.totalPauseTime += Date.now() - this.pauseStart;
-      this.pauseStart = null;
+    if (this.pauseStartTime) {
+      this.totalPauseTime += Date.now() - this.pauseStartTime;
+      this.pauseStartTime = null;
     }
-    this._lastTimestamp = performance.now();
+    // Reset scroll anchor to current position
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
     if (this.onPauseChange) this.onPauseChange(false);
   }
 
-  /**
-   * Stop and clean up
-   */
   stop() {
     this.isRunning = false;
     this.isPaused = false;
-    if (this._animFrame) cancelAnimationFrame(this._animFrame);
+    if (this._timer) clearInterval(this._timer);
     if (this._timerInterval) clearInterval(this._timerInterval);
   }
 
-  /**
-   * Speed adjustment
-   */
   increaseSpeed(amount = 10) {
     this.scrollSpeed = Math.min(200, this.scrollSpeed + amount);
+    // Reset anchor before recalculating
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
+    this._recalculateSpeed();
     if (this.onSpeedChange) this.onSpeedChange(this.scrollSpeed);
   }
 
   decreaseSpeed(amount = 10) {
     this.scrollSpeed = Math.max(10, this.scrollSpeed - amount);
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
+    this._recalculateSpeed();
     if (this.onSpeedChange) this.onSpeedChange(this.scrollSpeed);
   }
 
-  /**
-   * Jump forward/back by sentence
-   */
   jumpForward() {
-    const targetIndex = Math.min(this.words.length - 1, this.currentWordIndex + 20);
-    this.currentWordIndex = targetIndex;
+    // Jump ~1 sentence worth of words
+    const jump = Math.min(20, this.words.length - 1 - this.currentWordIndex);
+    this.currentWordIndex = Math.min(this.words.length - 1, this.currentWordIndex + jump);
+    this.scrollOffset += jump * (this.lineHeight / this.avgWordsPerLine);
+    // Reset anchor
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
     if (this.onWordChange) this.onWordChange(this.currentWordIndex);
+    if (this.onScroll) this.onScroll(this.scrollOffset);
   }
 
   jumpBack() {
-    const targetIndex = Math.max(0, this.currentWordIndex - 20);
-    this.currentWordIndex = targetIndex;
+    const jump = Math.min(20, this.currentWordIndex);
+    this.currentWordIndex = Math.max(0, this.currentWordIndex - jump);
+    this.scrollOffset -= jump * (this.lineHeight / this.avgWordsPerLine);
+    this.scrollOffset = Math.max(0, this.scrollOffset);
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
     if (this.onWordChange) this.onWordChange(this.currentWordIndex);
+    if (this.onScroll) this.onScroll(this.scrollOffset);
   }
 
-  /**
-   * Toggle reverse direction
-   */
   toggleReverse() {
     this.isReversed = !this.isReversed;
+    // Reset anchor for new direction
+    this.scrollStartDate = Date.now();
+    this.scrollStartWordIndex = this.currentWordIndex;
+    this.scrollStartPixelOffset = this.scrollOffset;
+    this.totalPauseTime = 0;
   }
 
-  /**
-   * Get current WPM based on elapsed time
-   */
   getCurrentWPM() {
     if (this.elapsedSeconds <= 0) return 0;
     return (this.currentWordIndex / this.elapsedSeconds) * 60;
   }
 
-  /**
-   * Advance to specific word (used by voice scroll)
-   */
+  getDisplayWPM() {
+    return Math.round(this.scrollSpeed * 3);
+  }
+
   advanceToWord(index) {
     if (index >= 0 && index < this.words.length) {
       this.currentWordIndex = index;
+      // Recalculate scroll offset for the new word position
+      this.scrollOffset =
+        (index / this.avgWordsPerLine) * this.lineHeight;
+      this.scrollStartDate = Date.now();
+      this.scrollStartWordIndex = index;
+      this.scrollStartPixelOffset = this.scrollOffset;
+      this.totalPauseTime = 0;
       if (this.onWordChange) this.onWordChange(this.currentWordIndex);
+      if (this.onScroll) this.onScroll(this.scrollOffset);
     }
   }
 }

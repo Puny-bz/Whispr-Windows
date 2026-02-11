@@ -16,18 +16,22 @@
       <div class="sidebar-header">
         <h1>Whispr</h1>
         <div class="sidebar-actions">
+          <button class="btn-icon" id="btn-templates" title="Templates">&#9776;</button>
+          <button class="btn-icon" id="btn-import" title="Import / Paste">&#8593;</button>
           <button class="btn-icon" id="btn-new-script" title="New Script">+</button>
-          <button class="btn-icon" id="btn-import" title="Import File">&#8593;</button>
         </div>
       </div>
+      <div class="sidebar-search">
+        <input type="text" class="search-input" id="search-input" placeholder="Search scripts...">
+      </div>
       <div class="script-list" id="script-list">
-        <!-- Scripts rendered here -->
+        <!-- Scripts rendered here by app.js -->
       </div>
     </div>
 
     <!-- Editor Panel -->
     <div class="editor-panel" id="editor-panel">
-      <!-- Empty state (shown when no script selected) -->
+      <!-- Empty state -->
       <div class="empty-state" id="empty-state">
         <div class="empty-state-icon">&#9998;</div>
         <h2>No Script Selected</h2>
@@ -35,14 +39,14 @@
         <button class="btn-primary" id="btn-empty-new">New Script</button>
       </div>
 
-      <!-- Editor (hidden until script selected) -->
+      <!-- Editor -->
       <div id="editor-view" style="display: none; flex-direction: column; flex: 1;">
         <div class="editor-toolbar">
           <input type="text" class="title-input" id="title-input" placeholder="Untitled Script">
           <button class="btn-icon" id="btn-delete" title="Delete Script">&#128465;</button>
         </div>
         <div class="editor-content">
-          <textarea class="editor-textarea" id="editor-textarea" placeholder="Start writing your script..."></textarea>
+          <textarea class="editor-textarea" id="editor-textarea" placeholder="Start writing your script...&#10;&#10;Supports **bold**, *italic*, and # headings."></textarea>
         </div>
         <div class="editor-footer">
           <div class="editor-stats">
@@ -62,9 +66,19 @@
   <!-- Context Menu -->
   <div class="context-menu" id="context-menu" style="display: none;">
     <div class="context-menu-item" data-action="duplicate">Duplicate</div>
-    <div class="context-menu-item" data-action="export">Export as Text</div>
+    <div class="context-menu-item" data-action="export">Copy to Clipboard</div>
     <div class="context-menu-separator"></div>
     <div class="context-menu-item danger" data-action="delete">Delete</div>
+  </div>
+
+  <!-- Template Menu (matches Swift templates) -->
+  <div class="context-menu" id="template-menu" style="display: none;">
+    <div class="context-menu-item" data-template="YouTube Intro">YouTube Intro</div>
+    <div class="context-menu-item" data-template="Product Demo">Product Demo</div>
+    <div class="context-menu-item" data-template="Presentation Opener">Presentation Opener</div>
+    <div class="context-menu-item" data-template="Pitch Deck">Pitch Deck</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item" data-template="Blank">Blank</div>
   </div>
 
   <script src="js/utils.js"></script>

@@ -41,6 +41,8 @@ pub struct Settings {
     pub end_action: String,
     pub target_min_wpm: f64,
     pub target_max_wpm: f64,
+    pub voice_scroll_enabled: bool,
+    pub content_protected: bool,
 }
 
 impl Default for Settings {
@@ -71,6 +73,8 @@ impl Default for Settings {
             end_action: "stop".into(),
             target_min_wpm: 130.0,
             target_max_wpm: 170.0,
+            voice_scroll_enabled: false,
+            content_protected: false,
         }
     }
 }

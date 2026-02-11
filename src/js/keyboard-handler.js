@@ -1,4 +1,5 @@
 // Keyboard Handler for Prompter Windows
+// Matches Swift's keyboard shortcuts exactly
 
 class KeyboardHandler {
   constructor(engine, options = {}) {
@@ -7,6 +8,7 @@ class KeyboardHandler {
     this.onMirrorToggle = options.onMirrorToggle || null;
     this.onFullscreenToggle = options.onFullscreenToggle || null;
     this.onSkipCountdown = options.onSkipCountdown || null;
+    this.onVoiceToggle = options.onVoiceToggle || null;
     this.isCountdownActive = false;
 
     this._handler = (e) => this._handleKey(e);
@@ -60,6 +62,10 @@ class KeyboardHandler {
       case 'KeyF':
         e.preventDefault();
         if (this.onFullscreenToggle) this.onFullscreenToggle();
+        break;
+      case 'KeyV':
+        e.preventDefault();
+        if (this.onVoiceToggle) this.onVoiceToggle();
         break;
     }
   }

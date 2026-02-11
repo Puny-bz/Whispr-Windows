@@ -7,12 +7,11 @@ use tauri::{
 pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let new_script = MenuItemBuilder::with_id("new_script", "New Script").build(app)?;
     let settings = MenuItemBuilder::with_id("settings", "Settings...").build(app)?;
-    let separator = PredefinedMenuItem::separator(app)?;
     let quit = MenuItemBuilder::with_id("quit", "Quit Whispr").build(app)?;
 
     let menu = MenuBuilder::new(app)
         .item(&new_script)
-        .item(&separator)
+        .item(&PredefinedMenuItem::separator(app)?)
         .item(&settings)
         .item(&PredefinedMenuItem::separator(app)?)
         .item(&quit)
@@ -25,6 +24,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
             match event.id().as_ref() {
                 "new_script" => {
                     if let Some(w) = app.get_webview_window("main") {
+                        w.show().ok();
                         w.set_focus().ok();
                         w.emit("new-script", ()).ok();
                     }
@@ -35,7 +35,18 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                 "quit" => {
                     app.exit(0);
                 }
-                _ => {}
+                _ => {
+                    // Handle recent script IDs
+                    let id = event.id().as_ref().to_string();
+                    if id.starts_with("recent_") {
+                        let script_id = id.strip_prefix("recent_").unwrap_or("");
+                        if let Some(w) = app.get_webview_window("main") {
+                            w.show().ok();
+                            w.set_focus().ok();
+                            w.emit("open-script", script_id).ok();
+                        }
+                    }
+                }
             }
         })
         .on_tray_icon_event(|tray, event| {
