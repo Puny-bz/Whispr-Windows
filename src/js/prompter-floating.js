@@ -6,6 +6,7 @@ const FloatingPrompter = {
   countdown: null,
   settings: null,
   scriptId: null,
+  isHoverPaused: false,
 
   async init() {
     this.settings = await Utils.invoke('get_settings');
@@ -18,6 +19,11 @@ const FloatingPrompter = {
     const textEl = document.getElementById('floating-text');
     textEl.style.fontSize = `${this.settings.floating_font_size || 32}px`;
     textEl.style.fontFamily = Utils.fontFamilyCSS(this.settings.floating_font_family);
+
+    // Apply text color
+    if (this.settings.text_color_hex && this.settings.text_color_hex !== '#FFFFFF') {
+      textEl.style.color = this.settings.text_color_hex;
+    }
 
     // Mirror mode
     if (this.settings.mirror_mode) {
@@ -47,6 +53,7 @@ const FloatingPrompter = {
         const textEl = document.getElementById('floating-text');
         textEl.style.fontSize = `${s.floating_font_size || 32}px`;
         textEl.style.fontFamily = Utils.fontFamilyCSS(s.floating_font_family);
+        if (s.text_color_hex) textEl.style.color = s.text_color_hex;
       }
     });
 
@@ -59,27 +66,52 @@ const FloatingPrompter = {
       }
     });
 
+    // Speed control buttons
+    document.getElementById('btn-speed-down').addEventListener('click', () => {
+      if (this.engine) this.engine.decreaseSpeed(5);
+    });
+    document.getElementById('btn-speed-up').addEventListener('click', () => {
+      if (this.engine) this.engine.increaseSpeed(5);
+    });
+    document.getElementById('btn-reverse').addEventListener('click', () => {
+      if (this.engine) {
+        this.engine.toggleReverse();
+        document.getElementById('btn-reverse').classList.toggle('active', this.engine.isReversed);
+      }
+    });
+
     // Click pause overlay to resume
     document.getElementById('pause-overlay').addEventListener('click', () => {
-      if (this.engine) this.engine.resume();
+      if (this.engine) {
+        this.isHoverPaused = false;
+        this.engine.resume();
+      }
     });
   },
 
   startWithCountdown(content) {
+    const updateProgress = (elapsed) => {
+      document.getElementById('progress-elapsed').textContent = Utils.formatTime(elapsed);
+      const remaining = this.engine.getRemainingSeconds();
+      document.getElementById('progress-remaining').textContent = Utils.formatTime(remaining);
+      const progress = this.engine.getProgress();
+      document.getElementById('progress-fill').style.width = `${progress * 100}%`;
+    };
+
     this.engine = new PrompterEngine({
       scrollSpeed: this.settings.floating_scroll_speed || 50,
       fontSize: this.settings.floating_font_size || 32,
       endAction: this.settings.end_action || 'stop',
       onWordChange: (index) => this.updateWords(index),
       onScroll: (offset) => this.updateScroll(offset),
-      onTimerUpdate: (s) => {
-        document.getElementById('floating-timer').textContent = Utils.formatTime(s);
-      },
+      onTimerUpdate: (s) => updateProgress(s),
       onPauseChange: (paused) => {
         document.getElementById('pause-overlay').classList.toggle('visible', paused);
+        const label = document.getElementById('pause-label');
+        label.textContent = this.isHoverPaused ? 'HOVER PAUSED' : 'PAUSED';
       },
       onSpeedChange: (speed) => {
-        document.getElementById('speed-indicator').textContent = `${Math.round(speed * 3)} WPM`;
+        document.getElementById('speed-wpm').textContent = `${Math.round(speed * 3)} WPM`;
       },
       onEnd: (action) => {
         if (action === 'close') this.close();
@@ -101,11 +133,14 @@ const FloatingPrompter = {
       onSkipCountdown: () => this.countdown?.skip(),
     });
 
+    // Hover-pause
+    this.setupHoverPause();
+
     // Cursor auto-hide
     this.setupCursorAutoHide();
 
-    // Speed indicator
-    document.getElementById('speed-indicator').textContent =
+    // Speed display
+    document.getElementById('speed-wpm').textContent =
       `${Math.round((this.settings.floating_scroll_speed || 50) * 3)} WPM`;
 
     // Sleep prevention
@@ -144,6 +179,22 @@ const FloatingPrompter = {
 
   updateScroll(offset) {
     document.getElementById('scroll-content').style.transform = `translateY(${-offset}px)`;
+  },
+
+  setupHoverPause() {
+    const textEl = document.getElementById('floating-text');
+    textEl.addEventListener('mouseenter', () => {
+      if (this.engine?.isRunning && !this.engine?.isPaused) {
+        this.isHoverPaused = true;
+        this.engine.pause();
+      }
+    });
+    textEl.addEventListener('mouseleave', () => {
+      if (this.isHoverPaused && this.engine?.isPaused) {
+        this.isHoverPaused = false;
+        this.engine.resume();
+      }
+    });
   },
 
   setupCursorAutoHide() {

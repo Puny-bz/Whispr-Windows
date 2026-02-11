@@ -1,3 +1,16 @@
+/// Read file content from a given path (for file import).
+/// Falls back to lossy UTF-8 conversion if strict parsing fails.
+#[tauri::command]
+pub fn read_file_content(path: String) -> Result<String, String> {
+    match std::fs::read_to_string(&path) {
+        Ok(content) => Ok(content),
+        Err(_) => {
+            let bytes = std::fs::read(&path).map_err(|e| e.to_string())?;
+            Ok(String::from_utf8_lossy(&bytes).into_owned())
+        }
+    }
+}
+
 /// Prevent the system from going to sleep while prompter is active.
 /// On Windows: SetThreadExecutionState. On macOS: IOKit (handled in Swift).
 #[tauri::command]

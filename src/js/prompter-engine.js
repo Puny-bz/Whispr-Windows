@@ -230,11 +230,16 @@ class PrompterEngine {
   }
 
   jumpForward() {
-    // Jump ~1 sentence worth of words
-    const jump = Math.min(20, this.words.length - 1 - this.currentWordIndex);
-    this.currentWordIndex = Math.min(this.words.length - 1, this.currentWordIndex + jump);
-    this.scrollOffset += jump * (this.lineHeight / this.avgWordsPerLine);
-    // Reset anchor
+    // Jump one line forward (matches Swift's jumpSentence)
+    if (this.currentLineIndex < this.lines.length - 1) {
+      this.currentLineIndex++;
+      let wordsSoFar = 0;
+      for (let i = 0; i < this.currentLineIndex; i++) {
+        wordsSoFar += this.lines[i].split(/\s+/).filter(Boolean).length;
+      }
+      this.currentWordIndex = Math.min(wordsSoFar, this.words.length - 1);
+      this.scrollOffset = this.currentLineIndex * this.lineHeight;
+    }
     this.scrollStartDate = Date.now();
     this.scrollStartWordIndex = this.currentWordIndex;
     this.scrollStartPixelOffset = this.scrollOffset;
@@ -244,10 +249,19 @@ class PrompterEngine {
   }
 
   jumpBack() {
-    const jump = Math.min(20, this.currentWordIndex);
-    this.currentWordIndex = Math.max(0, this.currentWordIndex - jump);
-    this.scrollOffset -= jump * (this.lineHeight / this.avgWordsPerLine);
-    this.scrollOffset = Math.max(0, this.scrollOffset);
+    // Jump one line back (matches Swift's jumpSentence reverse)
+    if (this.currentLineIndex > 0) {
+      this.currentLineIndex--;
+      let wordsSoFar = 0;
+      for (let i = 0; i < this.currentLineIndex; i++) {
+        wordsSoFar += this.lines[i].split(/\s+/).filter(Boolean).length;
+      }
+      this.currentWordIndex = Math.max(0, wordsSoFar);
+      this.scrollOffset = Math.max(0, this.currentLineIndex * this.lineHeight);
+    } else {
+      this.currentWordIndex = 0;
+      this.scrollOffset = 0;
+    }
     this.scrollStartDate = Date.now();
     this.scrollStartWordIndex = this.currentWordIndex;
     this.scrollStartPixelOffset = this.scrollOffset;
@@ -272,6 +286,17 @@ class PrompterEngine {
 
   getDisplayWPM() {
     return Math.round(this.scrollSpeed * 3);
+  }
+
+  getProgress() {
+    if (this.words.length <= 1) return 0;
+    return this.currentWordIndex / (this.words.length - 1);
+  }
+
+  getRemainingSeconds() {
+    if (this.wordsPerSecond <= 0) return 0;
+    const remaining = this.words.length - 1 - this.currentWordIndex;
+    return remaining / this.wordsPerSecond;
   }
 
   advanceToWord(index) {

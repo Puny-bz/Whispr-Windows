@@ -23,8 +23,17 @@
       </div>
     </div>
 
-    <!-- Text area with scroll -->
-    <div class="floating-text" id="floating-text">
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progress-bar">
+      <span class="progress-time" id="progress-elapsed">0:00</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="progress-time" id="progress-remaining">0:00</span>
+    </div>
+
+    <!-- Text area with scroll (draggable from content) -->
+    <div class="floating-text" id="floating-text" data-tauri-drag-region>
       <div class="fade-top"></div>
       <div class="floating-scroll-content" id="scroll-content">
         <!-- Words rendered here -->
@@ -32,15 +41,17 @@
       <div class="fade-bottom"></div>
     </div>
 
-    <!-- Timer -->
-    <div class="prompter-timer" id="floating-timer">0:00</div>
-
-    <!-- Speed indicator -->
-    <div class="speed-indicator" id="speed-indicator">150 WPM</div>
+    <!-- Speed control bar -->
+    <div class="speed-control-bar" id="speed-control-bar">
+      <button class="speed-btn" id="btn-speed-down" title="Slower">&#8722;</button>
+      <button class="speed-btn" id="btn-reverse" title="Reverse">&#8634;</button>
+      <span class="speed-wpm" id="speed-wpm">150 WPM</span>
+      <button class="speed-btn" id="btn-speed-up" title="Faster">&#43;</button>
+    </div>
 
     <!-- Pause overlay -->
     <div class="pause-overlay" id="pause-overlay">
-      <span class="pause-label">PAUSED</span>
+      <span class="pause-label" id="pause-label">PAUSED</span>
     </div>
   </div>
 

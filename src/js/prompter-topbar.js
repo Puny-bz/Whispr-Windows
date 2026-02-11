@@ -5,6 +5,7 @@ const TopbarPrompter = {
   keyboard: null,
   countdown: null,
   settings: null,
+  isHoverPaused: false,
 
   async init() {
     this.settings = await Utils.invoke('get_settings');
@@ -58,10 +59,10 @@ const TopbarPrompter = {
       if (this.engine) this.engine.togglePause();
     });
     document.getElementById('btn-slower').addEventListener('click', () => {
-      if (this.engine) this.engine.decreaseSpeed();
+      if (this.engine) this.engine.decreaseSpeed(5);
     });
     document.getElementById('btn-faster').addEventListener('click', () => {
-      if (this.engine) this.engine.increaseSpeed();
+      if (this.engine) this.engine.increaseSpeed(5);
     });
     document.getElementById('btn-close').addEventListener('click', () => this.close());
   },
@@ -89,6 +90,12 @@ const TopbarPrompter = {
       onClose: () => this.close(),
       onSkipCountdown: () => this.countdown?.skip(),
     });
+
+    // Hover-pause
+    this.setupHoverPause();
+
+    // Cursor auto-hide
+    this.setupCursorAutoHide();
 
     // Sleep prevention
     Utils.invoke('prevent_sleep', { prevent: true });
@@ -122,6 +129,36 @@ const TopbarPrompter = {
       html += `<span class="${cls}">${Utils.escapeHtml(words[i].text)} </span>`;
     }
     line.innerHTML = html;
+  },
+
+  setupHoverPause() {
+    const textEl = document.getElementById('topbar-text');
+    textEl.addEventListener('mouseenter', () => {
+      if (this.engine?.isRunning && !this.engine?.isPaused) {
+        this.isHoverPaused = true;
+        this.engine.pause();
+      }
+    });
+    textEl.addEventListener('mouseleave', () => {
+      if (this.isHoverPaused && this.engine?.isPaused) {
+        this.isHoverPaused = false;
+        this.engine.resume();
+      }
+    });
+  },
+
+  setupCursorAutoHide() {
+    const container = document.getElementById('topbar-container');
+    let timeout;
+    container.addEventListener('mousemove', () => {
+      container.style.cursor = 'default';
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (this.engine?.isRunning && !this.engine?.isPaused) {
+          container.style.cursor = 'none';
+        }
+      }, 2000);
+    });
   },
 
   async close() {

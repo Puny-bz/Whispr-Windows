@@ -9,16 +9,21 @@ const SettingsManager = {
 
     this.applyToUI();
     this.bindEvents();
+    this.setupSystemAppearance();
   },
 
   applyToUI() {
     const s = this.settings;
 
     // General tab
-    document.getElementById('daynight-toggle').dataset.mode = s.appearance_mode;
+    const isSystem = s.appearance_mode === 'system';
+    document.getElementById('setting-system-appearance').checked = isSystem;
+    const effectiveMode = isSystem ? this._detectSystemTheme() : s.appearance_mode;
+    document.getElementById('daynight-toggle').dataset.mode = effectiveMode;
     document.getElementById('setting-prompter-mode').value = s.prompter_mode;
     document.getElementById('setting-countdown').value = s.countdown_seconds;
     document.getElementById('setting-end-action').value = s.end_action;
+
     // Top bar tab
     this._setSlider('setting-notch-font-size', s.notch_font_size, 'val-notch-font-size', 'pt');
     this._setSlider('setting-notch-scroll-speed', s.notch_scroll_speed, 'val-notch-scroll-speed', '');
@@ -38,6 +43,7 @@ const SettingsManager = {
     this._setSlider('setting-float-font-size', s.floating_font_size, 'val-float-font-size', 'pt');
     this._setSlider('setting-float-scroll-speed', s.floating_scroll_speed, 'val-float-scroll-speed', '');
     document.getElementById('setting-float-font-family').value = s.floating_font_family;
+    document.getElementById('setting-text-color').value = s.text_color_hex || '#FFFFFF';
     document.getElementById('setting-mirror-mode').checked = s.mirror_mode;
 
     // Theme cards
@@ -46,7 +52,7 @@ const SettingsManager = {
     });
 
     // Apply theme
-    document.documentElement.setAttribute('data-theme', s.appearance_mode);
+    document.documentElement.setAttribute('data-theme', effectiveMode);
   },
 
   _setSlider(sliderId, value, labelId, suffix) {
@@ -54,6 +60,21 @@ const SettingsManager = {
     const label = document.getElementById(labelId);
     if (slider) slider.value = value;
     if (label) label.textContent = `${Math.round(value)}${suffix}`;
+  },
+
+  _detectSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  },
+
+  setupSystemAppearance() {
+    // Listen for OS theme changes when in system mode
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (this.settings?.appearance_mode === 'system') {
+        const mode = this._detectSystemTheme();
+        document.getElementById('daynight-toggle').dataset.mode = mode;
+        document.documentElement.setAttribute('data-theme', mode);
+      }
+    });
   },
 
   bindEvents() {
@@ -73,7 +94,22 @@ const SettingsManager = {
       const mode = toggle.dataset.mode === 'dark' ? 'light' : 'dark';
       toggle.dataset.mode = mode;
       document.documentElement.setAttribute('data-theme', mode);
+      // Uncheck system appearance when manually toggling
+      document.getElementById('setting-system-appearance').checked = false;
       this._update('appearance_mode', mode);
+    });
+
+    // System appearance toggle
+    document.getElementById('setting-system-appearance').addEventListener('change', (e) => {
+      if (e.target.checked) {
+        const mode = this._detectSystemTheme();
+        document.getElementById('daynight-toggle').dataset.mode = mode;
+        document.documentElement.setAttribute('data-theme', mode);
+        this._update('appearance_mode', 'system');
+      } else {
+        const mode = document.getElementById('daynight-toggle').dataset.mode;
+        this._update('appearance_mode', mode);
+      }
     });
 
     // Selects
@@ -96,6 +132,11 @@ const SettingsManager = {
     // Toggles
     this._bindToggle('setting-notch-show-timer', 'notch_show_timer');
     this._bindToggle('setting-mirror-mode', 'mirror_mode');
+
+    // Text color picker
+    document.getElementById('setting-text-color').addEventListener('change', (e) => {
+      this._update('text_color_hex', e.target.value);
+    });
 
     // Glow cards
     document.querySelectorAll('[data-glow]').forEach(card => {

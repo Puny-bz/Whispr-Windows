@@ -98,6 +98,26 @@
   border-color: var(--accent);
 }
 
+/* ── Color Picker ── */
+.color-picker {
+  width: 36px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  cursor: pointer;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+
 /* ── Context Menu ── */
 .context-menu {
   position: fixed;

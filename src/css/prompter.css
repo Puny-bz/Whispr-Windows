@@ -114,6 +114,7 @@
 }
 
 /* ── Mirror Mode ── */
-.prompter-container.mirrored {
+.prompter-container.mirrored,
+.floating-container.mirrored {
   transform: scaleX(-1);
 }

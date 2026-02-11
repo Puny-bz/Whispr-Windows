@@ -29,18 +29,26 @@ pub fn open_topbar_prompter(
         .ok_or("No primary monitor found")?;
     let screen_width = monitor.size().width as f64 / monitor.scale_factor();
 
+    // Read settings for window dimensions
+    let settings = crate::commands::settings::get_settings()?;
+    let width_pct = settings.notch_width_percent / 100.0;
+    let win_width = screen_width * width_pct;
+    let win_height = settings.notch_height;
+    let win_x = (screen_width - win_width) / 2.0;
+
     let win = WebviewWindowBuilder::new(
         &app,
         "topbar-prompter",
         WebviewUrl::App("prompter-topbar.html".into()),
     )
     .title("Whispr Prompter")
-    .inner_size(screen_width * 0.55, 100.0)
-    .position(screen_width * 0.225, 0.0)
+    .inner_size(win_width, win_height)
+    .position(win_x, 0.0)
     .decorations(false)
     .always_on_top(true)
     .resizable(false)
     .skip_taskbar(true)
+    .content_protected(true)
     .build()
     .map_err(|e: tauri::Error| e.to_string())?;
 
@@ -87,11 +95,14 @@ pub fn open_floating_prompter(
     )
     .title("Whispr Prompter")
     .inner_size(480.0, 320.0)
+    .min_inner_size(400.0, 200.0)
+    .max_inner_size(1400.0, 800.0)
     .center()
     .decorations(false)
     .always_on_top(true)
     .resizable(true)
     .skip_taskbar(true)
+    .content_protected(true)
     .build()
     .map_err(|e: tauri::Error| e.to_string())?;
 

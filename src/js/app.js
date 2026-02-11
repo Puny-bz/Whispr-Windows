@@ -13,6 +13,8 @@ const App = {
       const settings = await Utils.invoke('get_settings');
       if (settings) {
         ThemeManager.set(settings.appearance_mode);
+        const picker = document.getElementById('mode-picker');
+        if (picker) picker.value = settings.prompter_mode || 'floating';
       }
     } catch (e) {
       console.warn('Could not load settings:', e);
@@ -123,13 +125,13 @@ const App = {
     document.getElementById('context-menu').style.display = 'none';
   },
 
-  async startPrompter() {
+  async startPrompter(modeOverride) {
     if (!Editor.currentScriptId) return;
     await Editor.save();
 
     try {
-      const settings = await Utils.invoke('get_settings');
-      const mode = settings ? settings.prompter_mode : 'floating';
+      const mode = modeOverride || document.getElementById('mode-picker')?.value
+        || (await Utils.invoke('get_settings'))?.prompter_mode || 'floating';
 
       if (mode === 'notch') {
         await Utils.invoke('open_topbar_prompter', { scriptId: Editor.currentScriptId });
@@ -147,16 +149,18 @@ const App = {
         const result = await window.__TAURI__.dialog.open({
           multiple: false,
           filters: [
-            { name: 'Text Files', extensions: ['txt', 'md', 'text'] },
+            { name: 'Text Files', extensions: ['txt', 'md', 'text', 'rtf', 'srt', 'vtt', 'csv'] },
             { name: 'All Files', extensions: ['*'] },
           ],
         });
         if (result) {
-          // Read file content via a Tauri command or use the path
-          // For now use clipboard as fallback
-          const text = await navigator.clipboard.readText();
+          const text = await Utils.invoke('read_file_content', { path: result });
           if (text && text.trim()) {
-            const script = await ScriptManager.create('Imported Script', text.trim());
+            // Derive title from filename
+            const parts = result.replace(/\\/g, '/').split('/');
+            const filename = parts[parts.length - 1].replace(/\.[^.]+$/, '');
+            const title = filename || 'Imported Script';
+            const script = await ScriptManager.create(title, text.trim());
             if (script) {
               await this.loadScripts();
               this.selectScript(script.id);

@@ -67,6 +67,95 @@ body.floating {
   color: var(--text-primary);
 }
 
+/* ── Progress Bar ── */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  min-height: 20px;
+  z-index: 1;
+}
+
+.progress-time {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  min-width: 36px;
+}
+
+.progress-time:last-child {
+  text-align: right;
+}
+
+.progress-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--highlight, #007AFF);
+  border-radius: 2px;
+  transition: width 0.5s linear;
+}
+
+/* ── Speed Control Bar ── */
+.speed-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  min-height: 28px;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  z-index: 1;
+}
+
+.floating-container:hover .speed-control-bar {
+  opacity: 1;
+}
+
+.speed-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: no-drag;
+}
+
+.speed-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+}
+
+.speed-btn.active {
+  background: var(--highlight, #007AFF);
+  color: #fff;
+  border-color: transparent;
+}
+
+.speed-wpm {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 60px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ── Text Area ── */
 .floating-text {
   flex: 1;
