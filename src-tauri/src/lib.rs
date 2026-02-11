@@ -27,7 +27,6 @@ pub fn run() {
             commands::scripts::update_script,
             commands::scripts::delete_script,
             commands::scripts::get_recent_scripts,
-            commands::scripts::update_practice_stats,
             commands::settings::get_settings,
             commands::settings::save_settings,
             commands::settings::update_setting,

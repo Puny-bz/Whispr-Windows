@@ -6,7 +6,7 @@ use tauri::State;
 pub fn get_all_scripts(state: State<AppState>) -> Result<Vec<Script>, String> {
     let conn = state.db.conn.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, title, content, created_at, updated_at, words_per_minute, last_practice_duration FROM scripts ORDER BY updated_at DESC")
+        .prepare("SELECT id, title, content, created_at, updated_at FROM scripts ORDER BY updated_at DESC")
         .map_err(|e| e.to_string())?;
 
     let scripts = stmt
@@ -17,8 +17,6 @@ pub fn get_all_scripts(state: State<AppState>) -> Result<Vec<Script>, String> {
                 content: row.get(2)?,
                 created_at: row.get(3)?,
                 updated_at: row.get(4)?,
-                words_per_minute: row.get(5)?,
-                last_practice_duration: row.get(6)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -46,8 +44,6 @@ pub fn create_script(state: State<AppState>, title: String, content: String) -> 
         content,
         created_at: now.clone(),
         updated_at: now,
-        words_per_minute: None,
-        last_practice_duration: None,
     })
 }
 
@@ -84,7 +80,7 @@ pub fn delete_script(state: State<AppState>, id: String) -> Result<(), String> {
 pub fn get_recent_scripts(state: State<AppState>, limit: u32) -> Result<Vec<Script>, String> {
     let conn = state.db.conn.lock().map_err(|e| e.to_string())?;
     let mut stmt = conn
-        .prepare("SELECT id, title, content, created_at, updated_at, words_per_minute, last_practice_duration FROM scripts ORDER BY updated_at DESC LIMIT ?1")
+        .prepare("SELECT id, title, content, created_at, updated_at FROM scripts ORDER BY updated_at DESC LIMIT ?1")
         .map_err(|e| e.to_string())?;
 
     let scripts = stmt
@@ -95,8 +91,6 @@ pub fn get_recent_scripts(state: State<AppState>, limit: u32) -> Result<Vec<Scri
                 content: row.get(2)?,
                 created_at: row.get(3)?,
                 updated_at: row.get(4)?,
-                words_per_minute: row.get(5)?,
-                last_practice_duration: row.get(6)?,
             })
         })
         .map_err(|e| e.to_string())?
@@ -106,21 +100,3 @@ pub fn get_recent_scripts(state: State<AppState>, limit: u32) -> Result<Vec<Scri
     Ok(scripts)
 }
 
-#[tauri::command]
-pub fn update_practice_stats(
-    state: State<AppState>,
-    id: String,
-    wpm: f64,
-    duration: f64,
-) -> Result<(), String> {
-    let conn = state.db.conn.lock().map_err(|e| e.to_string())?;
-    let now = chrono::Utc::now().to_rfc3339();
-
-    conn.execute(
-        "UPDATE scripts SET words_per_minute = ?1, last_practice_duration = ?2, updated_at = ?3 WHERE id = ?4",
-        rusqlite::params![wpm, duration, now, id],
-    )
-    .map_err(|e| e.to_string())?;
-
-    Ok(())
-}

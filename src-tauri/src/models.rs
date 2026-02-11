@@ -7,8 +7,6 @@ pub struct Script {
     pub content: String,
     pub created_at: String,
     pub updated_at: String,
-    pub words_per_minute: Option<f64>,
-    pub last_practice_duration: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

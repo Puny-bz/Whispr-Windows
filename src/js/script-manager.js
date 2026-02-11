@@ -23,10 +23,6 @@ const ScriptManager = {
     return scripts || [];
   },
 
-  async updatePracticeStats(id, wpm, duration) {
-    return Utils.invoke('update_practice_stats', { id, wpm, duration });
-  },
-
   /**
    * Create from template — matches Swift's ScriptTemplate enum exactly
    */
