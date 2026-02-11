@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whispr Prompter</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/prompter.css">
+  <link rel="stylesheet" href="css/floating.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="floating">
+  <div class="floating-container" id="floating-container">
+    <!-- Glow effect layer -->
+    <div class="floating-glow rainbow" id="floating-glow"></div>
+
+    <!-- Drag bar -->
+    <div class="drag-bar" data-tauri-drag-region>
+      <span class="drag-bar-brand">PUNY</span>
+      <div class="drag-bar-actions">
+        <button class="drag-bar-btn" id="btn-minimize" title="Minimize">&#8211;</button>
+        <button class="drag-bar-btn" id="btn-close" title="Close">&#10005;</button>
+      </div>
+    </div>
+
+    <!-- Text area with scroll -->
+    <div class="floating-text" id="floating-text">
+      <div class="fade-top"></div>
+      <div class="floating-scroll-content" id="scroll-content">
+        <!-- Words rendered here -->
+      </div>
+      <div class="fade-bottom"></div>
+    </div>
+
+    <!-- Timer -->
+    <div class="prompter-timer" id="floating-timer">0:00</div>
+
+    <!-- Speed indicator -->
+    <div class="speed-indicator" id="speed-indicator">150 WPM</div>
+
+    <!-- Pause overlay -->
+    <div class="pause-overlay" id="pause-overlay">
+      <span class="pause-label">PAUSED</span>
+    </div>
+
+    <!-- Pace indicator -->
+    <div class="pace-bar" id="pace-bar" style="display: none;">
+      <div class="pace-zone slow"></div>
+      <div class="pace-zone optimal"></div>
+      <div class="pace-zone fast"></div>
+      <div class="pace-marker" id="pace-marker"></div>
+    </div>
+  </div>
+
+  <!-- Countdown overlay -->
+  <div id="countdown-overlay" style="display: none;"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/prompter-engine.js"></script>
+  <script src="js/keyboard-handler.js"></script>
+  <script src="js/countdown.js"></script>
+  <script src="js/voice-scroll.js"></script>
+  <script src="js/practice-mode.js"></script>
+  <script src="js/prompter-floating.js"></script>
+</body>
+</html>

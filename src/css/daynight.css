@@ -1,0 +1,125 @@
+/* Day/Night Toggle — Animated Pill with Sun/Moon */
+
+.daynight-toggle {
+  position: relative;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--transition-slow);
+  border: none;
+  outline: none;
+}
+
+/* Day (light) background */
+.daynight-toggle[data-mode="light"] {
+  background: linear-gradient(135deg, #87CEEB, #4FC3F7);
+}
+
+/* Night (dark) background */
+.daynight-toggle[data-mode="dark"] {
+  background: linear-gradient(135deg, #1a1a3e, #2d2d5e);
+}
+
+/* ── Thumb (Sun/Moon) ── */
+.daynight-thumb {
+  position: absolute;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: all var(--transition-slow);
+}
+
+.daynight-toggle[data-mode="light"] .daynight-thumb {
+  left: 4px;
+  background: #FFD700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.daynight-toggle[data-mode="dark"] .daynight-thumb {
+  left: 36px;
+  background: #E8E8E8;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Moon craters */
+.daynight-toggle[data-mode="dark"] .daynight-thumb::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.daynight-toggle[data-mode="dark"] .daynight-thumb::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ── Stars (dark mode) ── */
+.daynight-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+.daynight-toggle[data-mode="dark"] .daynight-stars {
+  opacity: 1;
+}
+
+.daynight-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.daynight-star:nth-child(1) { top: 8px; left: 10px; }
+.daynight-star:nth-child(2) { top: 14px; left: 18px; width: 1.5px; height: 1.5px; }
+.daynight-star:nth-child(3) { top: 6px; left: 24px; }
+.daynight-star:nth-child(4) { top: 20px; left: 14px; width: 1px; height: 1px; }
+
+/* ── Clouds (light mode) ── */
+.daynight-clouds {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+.daynight-toggle[data-mode="light"] .daynight-clouds {
+  opacity: 1;
+}
+
+.daynight-cloud {
+  position: absolute;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.daynight-cloud:nth-child(1) {
+  top: 10px;
+  right: 8px;
+  width: 16px;
+  height: 6px;
+}
+
+.daynight-cloud:nth-child(2) {
+  top: 18px;
+  right: 16px;
+  width: 12px;
+  height: 4px;
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whispr Prompter</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/prompter.css">
+  <link rel="stylesheet" href="css/topbar.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="topbar">
+  <div class="topbar-container" id="topbar-container">
+    <!-- Glow effect layer -->
+    <div class="topbar-glow rainbow" id="topbar-glow"></div>
+
+    <!-- Karaoke text -->
+    <div class="topbar-text" id="topbar-text">
+      <div class="line" id="topbar-line"></div>
+    </div>
+
+    <!-- Timer (optional) -->
+    <div class="prompter-timer" id="topbar-timer" style="display: none;">0:00</div>
+
+    <!-- Controls (shown on hover) -->
+    <div class="topbar-controls">
+      <button class="topbar-btn" id="btn-slower" title="Slower">&#9664;</button>
+      <button class="topbar-btn" id="btn-pause" title="Pause">&#10074;&#10074;</button>
+      <button class="topbar-btn" id="btn-faster" title="Faster">&#9654;</button>
+      <button class="topbar-btn" id="btn-close" title="Close">&#10005;</button>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/prompter-engine.js"></script>
+  <script src="js/keyboard-handler.js"></script>
+  <script src="js/countdown.js"></script>
+  <script src="js/prompter-topbar.js"></script>
+</body>
+</html>

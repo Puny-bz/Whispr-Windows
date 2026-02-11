@@ -1,0 +1,114 @@
+/* Top Bar Prompter Styles */
+
+body.topbar {
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.topbar-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ── Glow Border ── */
+.topbar-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Rainbow glow */
+.topbar-glow.rainbow {
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 0, 128, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(0, 128, 255, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(128, 0, 255, 0.4) 0%, transparent 50%);
+  animation: glow-shift 4s ease-in-out infinite;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 2px;
+}
+
+/* Blue glow */
+.topbar-glow.blue {
+  box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.3), 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+/* Green glow */
+.topbar-glow.green {
+  box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.3), 0 0 15px rgba(34, 197, 94, 0.2);
+}
+
+.topbar-glow.off {
+  display: none;
+}
+
+/* ── Karaoke Line ── */
+.topbar-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-lg);
+  z-index: 10;
+  text-align: center;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+.topbar-text .line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Controls (on hover) ── */
+.topbar-controls {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 20;
+}
+
+.topbar-container:hover .topbar-controls {
+  opacity: 1;
+}
+
+.topbar-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.topbar-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes glow-shift {
+  0%, 100% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(60deg); }
+}

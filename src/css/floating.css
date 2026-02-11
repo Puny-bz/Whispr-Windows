@@ -1,0 +1,124 @@
+/* Floating Prompter Styles */
+
+body.floating {
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.floating-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Drag Bar ── */
+.drag-bar {
+  height: 32px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-md);
+  cursor: grab;
+  -webkit-app-region: drag;
+}
+
+.drag-bar:active {
+  cursor: grabbing;
+}
+
+.drag-bar-brand {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.drag-bar-actions {
+  display: flex;
+  gap: var(--space-xs);
+  -webkit-app-region: no-drag;
+}
+
+.drag-bar-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-bar-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+/* ── Text Area ── */
+.floating-text {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  padding: var(--space-sm) var(--space-lg);
+}
+
+.floating-scroll-content {
+  position: relative;
+  transition: transform 16ms linear;
+}
+
+/* ── Glow Border ── */
+.floating-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.floating-glow.rainbow {
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    #ff0080, #ff8c00, #40e0d0, #8a2be2, #ff0080
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 2px;
+  animation: rotate-glow 3s linear infinite;
+}
+
+.floating-glow.blue {
+  box-shadow: inset 0 0 24px rgba(59, 130, 246, 0.25), 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.floating-glow.green {
+  box-shadow: inset 0 0 24px rgba(34, 197, 94, 0.25), 0 0 20px rgba(34, 197, 94, 0.15);
+}
+
+.floating-glow.off {
+  display: none;
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotate-glow {
+  to { --glow-angle: 360deg; }
+}

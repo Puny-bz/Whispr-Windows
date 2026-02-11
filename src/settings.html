@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whispr Settings</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/settings.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/daynight.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body class="settings">
+  <div class="settings-container">
+    <!-- Tab Bar -->
+    <div class="settings-tabs">
+      <button class="settings-tab active" data-tab="general">General</button>
+      <button class="settings-tab" data-tab="topbar">Top Bar</button>
+      <button class="settings-tab" data-tab="floating">Floating</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="settings-content" id="settings-content">
+      <!-- General Tab -->
+      <div class="tab-panel active" id="tab-general">
+        <div class="settings-section">
+          <div class="settings-section-title">Appearance</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Theme</div>
+              <div class="setting-description">Choose your visual style</div>
+            </div>
+            <div class="daynight-toggle" data-mode="dark" id="daynight-toggle">
+              <div class="daynight-stars">
+                <div class="daynight-star"></div>
+                <div class="daynight-star"></div>
+                <div class="daynight-star"></div>
+                <div class="daynight-star"></div>
+              </div>
+              <div class="daynight-clouds">
+                <div class="daynight-cloud"></div>
+                <div class="daynight-cloud"></div>
+              </div>
+              <div class="daynight-thumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Prompter</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Default Mode</div>
+            </div>
+            <select class="select" id="setting-prompter-mode">
+              <option value="notch">Top Bar</option>
+              <option value="floating">Floating</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Countdown</div>
+            </div>
+            <select class="select" id="setting-countdown">
+              <option value="0">None</option>
+              <option value="3" selected>3 seconds</option>
+              <option value="5">5 seconds</option>
+              <option value="10">10 seconds</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">End of Script</div>
+            </div>
+            <select class="select" id="setting-end-action">
+              <option value="stop">Stop</option>
+              <option value="loop">Loop</option>
+              <option value="close">Close Window</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Practice</div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-label">Target WPM Range</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="number" class="select" id="setting-min-wpm" value="130" style="width: 70px;">
+              <span style="color: var(--text-muted);">to</span>
+              <input type="number" class="select" id="setting-max-wpm" value="170" style="width: 70px;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Bar Tab -->
+      <div class="tab-panel" id="tab-topbar" style="display: none;">
+        <div class="settings-section">
+          <div class="settings-section-title">Text</div>
+          <div class="setting-row">
+            <div class="setting-label">Font Size</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-notch-font-size" min="14" max="26" value="20">
+              <span class="slider-value" id="val-notch-font-size">20pt</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Font Family</div>
+            <select class="select" id="setting-notch-font-family">
+              <option value="System">System</option>
+              <option value="Serif">Serif</option>
+              <option value="Monospace">Monospace</option>
+              <option value="Rounded">Rounded</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Line Count</div>
+            <select class="select" id="setting-notch-line-count">
+              <option value="1">1 line</option>
+              <option value="2" selected>2 lines</option>
+              <option value="3">3 lines</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Scroll</div>
+          <div class="setting-row">
+            <div class="setting-label">Speed</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-notch-scroll-speed" min="10" max="200" value="50">
+              <span class="slider-value" id="val-notch-scroll-speed">50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Window</div>
+          <div class="setting-row">
+            <div class="setting-label">Width</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-notch-width" min="30" max="80" value="55">
+              <span class="slider-value" id="val-notch-width">55%</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Height</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-notch-height" min="60" max="140" value="100">
+              <span class="slider-value" id="val-notch-height">100pt</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Opacity</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-notch-opacity" min="40" max="100" value="92">
+              <span class="slider-value" id="val-notch-opacity">92%</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Show Timer</div>
+            <label class="toggle">
+              <input type="checkbox" id="setting-notch-show-timer" checked>
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Glow Style</div>
+          <div class="card-grid">
+            <div class="card selected" data-glow="rainbow">
+              <div class="glow-card rainbow-preview"></div>
+              <div class="card-label">Rainbow</div>
+            </div>
+            <div class="card" data-glow="blue">
+              <div class="glow-card blue-preview"></div>
+              <div class="card-label">Blue</div>
+            </div>
+            <div class="card" data-glow="green">
+              <div class="glow-card green-preview"></div>
+              <div class="card-label">Green</div>
+            </div>
+            <div class="card" data-glow="off">
+              <div class="glow-card off-preview"></div>
+              <div class="card-label">Off</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Tab -->
+      <div class="tab-panel" id="tab-floating" style="display: none;">
+        <div class="settings-section">
+          <div class="settings-section-title">Text</div>
+          <div class="setting-row">
+            <div class="setting-label">Font Size</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-float-font-size" min="18" max="54" value="32">
+              <span class="slider-value" id="val-float-font-size">32pt</span>
+            </div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Font Family</div>
+            <select class="select" id="setting-float-font-family">
+              <option value="System">System</option>
+              <option value="Serif">Serif</option>
+              <option value="Monospace">Monospace</option>
+              <option value="Rounded">Rounded</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-label">Mirror Mode</div>
+            <label class="toggle">
+              <input type="checkbox" id="setting-mirror-mode">
+              <div class="toggle-track"></div>
+              <div class="toggle-thumb"></div>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Scroll</div>
+          <div class="setting-row">
+            <div class="setting-label">Speed</div>
+            <div class="slider-container">
+              <input type="range" class="slider" id="setting-float-scroll-speed" min="10" max="200" value="50">
+              <span class="slider-value" id="val-float-scroll-speed">50</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">Theme</div>
+          <div class="card-grid">
+            <div class="card selected" data-floating-theme="dark">
+              <div class="glow-card" style="background: #1A1A2E;"></div>
+              <div class="card-label">Dark</div>
+            </div>
+            <div class="card" data-floating-theme="light">
+              <div class="glow-card" style="background: #F0F0F5;"></div>
+              <div class="card-label">Light</div>
+            </div>
+            <div class="card" data-floating-theme="highContrast">
+              <div class="glow-card" style="background: #000; border: 1px solid #FFD700;"></div>
+              <div class="card-label">High Contrast</div>
+            </div>
+            <div class="card" data-floating-theme="greenScreen">
+              <div class="glow-card" style="background: #00B140;"></div>
+              <div class="card-label">Green Screen</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/settings-manager.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "whispr-windows",
+  "version": "1.0.0",
+  "description": "Whispr for Windows 11 — Teleprompter app",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@anthropic-ai/claude-code": "latest"
+  },
+  "license": "SEE LICENSE IN LICENSE"
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whispr</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>Whispr</h1>
+        <div class="sidebar-actions">
+          <button class="btn-icon" id="btn-new-script" title="New Script">+</button>
+          <button class="btn-icon" id="btn-import" title="Import File">&#8593;</button>
+        </div>
+      </div>
+      <div class="script-list" id="script-list">
+        <!-- Scripts rendered here -->
+      </div>
+    </div>
+
+    <!-- Editor Panel -->
+    <div class="editor-panel" id="editor-panel">
+      <!-- Empty state (shown when no script selected) -->
+      <div class="empty-state" id="empty-state">
+        <div class="empty-state-icon">&#9998;</div>
+        <h2>No Script Selected</h2>
+        <p>Create a new script or select one from the sidebar to start editing.</p>
+        <button class="btn-primary" id="btn-empty-new">New Script</button>
+      </div>
+
+      <!-- Editor (hidden until script selected) -->
+      <div id="editor-view" style="display: none; flex-direction: column; flex: 1;">
+        <div class="editor-toolbar">
+          <input type="text" class="title-input" id="title-input" placeholder="Untitled Script">
+          <button class="btn-icon" id="btn-delete" title="Delete Script">&#128465;</button>
+        </div>
+        <div class="editor-content">
+          <textarea class="editor-textarea" id="editor-textarea" placeholder="Start writing your script..."></textarea>
+        </div>
+        <div class="editor-footer">
+          <div class="editor-stats">
+            <span id="word-count">0 words</span>
+            <span id="char-count">0 chars</span>
+            <span id="read-time">~0 min</span>
+          </div>
+          <div class="prompter-controls">
+            <button class="btn-secondary" id="btn-settings">Settings</button>
+            <button class="btn-primary" id="btn-start-prompter">Start Prompter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context Menu -->
+  <div class="context-menu" id="context-menu" style="display: none;">
+    <div class="context-menu-item" data-action="duplicate">Duplicate</div>
+    <div class="context-menu-item" data-action="export">Export as Text</div>
+    <div class="context-menu-separator"></div>
+    <div class="context-menu-item danger" data-action="delete">Delete</div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/theme-manager.js"></script>
+  <script src="js/script-manager.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
