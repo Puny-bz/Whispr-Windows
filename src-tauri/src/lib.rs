@@ -36,7 +36,6 @@ pub fn run() {
             commands::window::close_prompter,
             commands::window::open_settings_window,
             commands::system::prevent_sleep,
-            commands::system::set_content_protected,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Whispr");

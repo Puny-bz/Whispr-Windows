@@ -19,9 +19,6 @@ const SettingsManager = {
     document.getElementById('setting-prompter-mode').value = s.prompter_mode;
     document.getElementById('setting-countdown').value = s.countdown_seconds;
     document.getElementById('setting-end-action').value = s.end_action;
-    document.getElementById('setting-min-wpm').value = s.target_min_wpm;
-    document.getElementById('setting-max-wpm').value = s.target_max_wpm;
-
     // Top bar tab
     this._setSlider('setting-notch-font-size', s.notch_font_size, 'val-notch-font-size', 'pt');
     this._setSlider('setting-notch-scroll-speed', s.notch_scroll_speed, 'val-notch-scroll-speed', '');
@@ -99,12 +96,6 @@ const SettingsManager = {
     // Toggles
     this._bindToggle('setting-notch-show-timer', 'notch_show_timer');
     this._bindToggle('setting-mirror-mode', 'mirror_mode');
-
-    // Number inputs
-    const debouncedMinWPM = Utils.debounce((v) => this._update('target_min_wpm', v), 500);
-    const debouncedMaxWPM = Utils.debounce((v) => this._update('target_max_wpm', v), 500);
-    document.getElementById('setting-min-wpm').addEventListener('input', (e) => debouncedMinWPM(e.target.value));
-    document.getElementById('setting-max-wpm').addEventListener('input', (e) => debouncedMaxWPM(e.target.value));
 
     // Glow cards
     document.querySelectorAll('[data-glow]').forEach(card => {

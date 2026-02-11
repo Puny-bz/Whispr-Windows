@@ -56,10 +56,6 @@ pub fn update_setting(key: String, value: String) -> Result<Settings, String> {
         "show_menu_bar_icon" => settings.show_menu_bar_icon = value.parse().map_err(|e: std::str::ParseBoolError| e.to_string())?,
         "appearance_mode" => settings.appearance_mode = value,
         "end_action" => settings.end_action = value,
-        "target_min_wpm" => settings.target_min_wpm = value.parse().map_err(|e: std::num::ParseFloatError| e.to_string())?,
-        "target_max_wpm" => settings.target_max_wpm = value.parse().map_err(|e: std::num::ParseFloatError| e.to_string())?,
-        "voice_scroll_enabled" => settings.voice_scroll_enabled = value.parse().map_err(|e: std::str::ParseBoolError| e.to_string())?,
-        "content_protected" => settings.content_protected = value.parse().map_err(|e: std::str::ParseBoolError| e.to_string())?,
         _ => return Err(format!("Unknown setting key: {}", key)),
     }
 

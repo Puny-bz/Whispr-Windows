@@ -1,14 +1,10 @@
-// Top Bar Prompter Controller — Full feature parity with Swift
+// Top Bar Prompter Controller
 
 const TopbarPrompter = {
   engine: null,
   keyboard: null,
   countdown: null,
-  voiceScroll: null,
-  practiceMode: null,
   settings: null,
-  scriptId: null,
-  scriptContent: null,
 
   async init() {
     this.settings = await Utils.invoke('get_settings');
@@ -36,8 +32,6 @@ const TopbarPrompter = {
     // Listen for script from Rust backend
     Utils.listen('load-script', (event) => {
       const data = event.payload;
-      this.scriptId = data.id;
-      this.scriptContent = data.content;
       this.startWithCountdown(data.content);
     });
 
@@ -84,14 +78,6 @@ const TopbarPrompter = {
       onPauseChange: (paused) => {
         const btn = document.getElementById('btn-pause');
         btn.innerHTML = paused ? '&#9654;' : '&#10074;&#10074;';
-        if (this.voiceScroll) {
-          if (paused) this.voiceScroll.pause();
-          else this.voiceScroll.resume();
-        }
-        if (this.practiceMode) {
-          if (paused) this.practiceMode.recordPause();
-          else this.practiceMode.endPause();
-        }
       },
       onEnd: () => this.close(),
     });
@@ -102,43 +88,22 @@ const TopbarPrompter = {
     this.keyboard = new KeyboardHandler(this.engine, {
       onClose: () => this.close(),
       onSkipCountdown: () => this.countdown?.skip(),
-      onVoiceToggle: () => this.toggleVoiceScroll(),
     });
 
-    // Practice mode
-    this.practiceMode = new PracticeMode(this.engine, {
-      targetMinWPM: this.settings.target_min_wpm || 130,
-      targetMaxWPM: this.settings.target_max_wpm || 170,
-    });
-
-    // Voice scroll
-    this.voiceScroll = new VoiceScroll(this.engine);
-
-    // Sleep prevention + content protection
+    // Sleep prevention
     Utils.invoke('prevent_sleep', { prevent: true });
-    if (this.settings.content_protected) {
-      Utils.invoke('set_content_protected', { protected: true });
-    }
 
     const countdownSeconds = this.settings.countdown_seconds ?? 3;
     this.countdown = new Countdown(document.body, {
       onComplete: () => {
         this.keyboard.isCountdownActive = false;
         this.engine.start();
-        this.practiceMode.start();
-        if (this.settings.voice_scroll_enabled) {
-          this.toggleVoiceScroll();
-        }
       },
     });
     this.keyboard.isCountdownActive = countdownSeconds > 0;
     this.countdown.start(countdownSeconds);
   },
 
-  /**
-   * Render windowed word view — shows words around current position
-   * Uses MarkdownParser.renderWordSpans for plain word rendering in topbar
-   */
   renderLine(wordIndex) {
     const line = document.getElementById('topbar-line');
     const words = this.engine.words;
@@ -148,26 +113,22 @@ const TopbarPrompter = {
     const start = Math.max(0, wordIndex - Math.floor(totalShow / 4));
     const end = Math.min(words.length, start + totalShow);
 
-    line.innerHTML = MarkdownParser.renderWordSpans(words, wordIndex, start, end);
-  },
-
-  async toggleVoiceScroll() {
-    if (!this.voiceScroll) return;
-    if (this.voiceScroll.isListening) {
-      this.voiceScroll.stop();
-    } else {
-      await this.voiceScroll.start();
+    let html = '';
+    for (let i = start; i < end; i++) {
+      let cls = 'word';
+      if (i < wordIndex) cls += ' spoken';
+      else if (i === wordIndex) cls += ' current';
+      else cls += ' upcoming';
+      html += `<span class="${cls}">${Utils.escapeHtml(words[i].text)} </span>`;
     }
+    line.innerHTML = html;
   },
 
   async close() {
     this.engine?.stop();
     this.keyboard?.destroy();
     this.countdown?.destroy();
-    this.voiceScroll?.stop();
-    this.practiceMode?.stop();
     Utils.invoke('prevent_sleep', { prevent: false });
-    Utils.invoke('set_content_protected', { protected: false });
     await Utils.invoke('close_prompter');
   },
 };

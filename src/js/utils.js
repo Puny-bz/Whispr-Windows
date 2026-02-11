@@ -109,7 +109,6 @@ const Utils = {
     return text
       .replace(/^#{1,3}\s+/gm, '')
       .replace(/\*\*(.+?)\*\*/g, '$1')
-      .replace(/\*(.+?)\*/g, '$1')
-      .replace(/~~(.+?)~~/g, '$1');
+      .replace(/\*(.+?)\*/g, '$1');
   },
 };

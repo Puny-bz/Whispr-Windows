@@ -39,10 +39,6 @@ pub struct Settings {
     pub show_menu_bar_icon: bool,
     pub appearance_mode: String,
     pub end_action: String,
-    pub target_min_wpm: f64,
-    pub target_max_wpm: f64,
-    pub voice_scroll_enabled: bool,
-    pub content_protected: bool,
 }
 
 impl Default for Settings {
@@ -71,10 +67,6 @@ impl Default for Settings {
             show_menu_bar_icon: true,
             appearance_mode: "dark".into(),
             end_action: "stop".into(),
-            target_min_wpm: 130.0,
-            target_max_wpm: 170.0,
-            voice_scroll_enabled: false,
-            content_protected: false,
         }
     }
 }
